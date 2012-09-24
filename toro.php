@@ -112,28 +112,29 @@ class ToroLink {
 
     /**
      * Return a constructed URL path for a given method name
-     * @param  [type] $class_name [description]
-     * @return string   URL string
+     * @param  string    $class_name    Name of the controler we want to link to
+     * @return string                   URL string
      */
     public static function path($class_name) {
         $path = array_search($class_name, ToroLink::$instance->routes);
         $passed_params = func_get_args();
         unset($passed_params[0]);
         $tokens = array(
-            ':string',
-            ':number',
-            ':alpha'
-            // ,
-            // '([.*]+)'
+            '/:string/',
+            '/:number/',
+            '/:alpha/',
+            '/:regex/'
         );
 
         if( ! $path) {
             throw new Exception(sprintf("No route for controller named %s found", $path));
         }
 
-        if(count($passed_params) !== 0) {
+        if(count($passed_params) > 0) {
+            $path = preg_replace("/\([^)]+\)/", ":regex", $path);
+
             foreach($passed_params as $param) {
-                $path = str_replace($tokens, $param, $path);
+                $path = preg_replace($tokens, $param, $path, 1);
             }
         }
 
