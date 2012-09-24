@@ -3,6 +3,7 @@
 class Toro {
     public static function serve($routes) {
         ToroHook::fire('before_request');
+        ToroLink::stash($routes);
 
         $request_method = strtolower($_SERVER['REQUEST_METHOD']);
         $path_info = '/';
@@ -92,5 +93,50 @@ class ToroHook {
             self::$instance = new ToroHook();
         }
         return self::$instance;
+    }
+}
+
+class ToroLink {
+    private $routes;
+    private static $instance;
+
+    private function __construct() {
+        ToroLink::$instance = $this;
+    }
+
+    public static function stash($routes) {
+        $self = new ToroLink();
+        ToroLink::$instance->routes = $routes;
+
+    }
+
+    /**
+     * Return a constructed URL path for a given method name
+     * @param  [type] $class_name [description]
+     * @return string   URL string
+     */
+    public static function path($class_name) {
+        $path = array_search($class_name, ToroLink::$instance->routes);
+        $passed_params = func_get_args();
+        unset($passed_params[0]);
+        $tokens = array(
+            ':string',
+            ':number',
+            ':alpha'
+            // ,
+            // '([.*]+)'
+        );
+
+        if( ! $path) {
+            throw new Exception(sprintf("No route for controller named %s found", $path));
+        }
+
+        if(count($passed_params) !== 0) {
+            foreach($passed_params as $param) {
+                $path = str_replace($tokens, $param, $path);
+            }
+        }
+
+        return $path;
     }
 }
