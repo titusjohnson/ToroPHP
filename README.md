@@ -16,8 +16,8 @@ Toro::serve(array(
 You can produce reverse links like so, keeping all your routes in one centeral location instead of sprinkled through your template files.
 
 ```php
-<a href="<?php echo Toro::path("friends")">Friends</a>
-<a href="<?php echo Toro::path("lists", "param")">List</a>
+<a href="<?php echo Toro::path("friends")?>">Friends</a>
+<a href="<?php echo Toro::path("lists", "param")?>">List</a>
 
 produces:
 
